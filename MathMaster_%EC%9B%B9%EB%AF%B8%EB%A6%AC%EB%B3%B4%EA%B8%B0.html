@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111827">
+<title>MathMaster</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#151d31;--panel2:#1b2740;--line:#2b3854;--text:#f4f7ff;--muted:#a7b3cb;--accent:#8bb8ff;--accentText:#07142b;--danger:#ff8f9a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px system-ui,-apple-system,"Segoe UI",sans-serif}button,input{font:inherit}button{cursor:pointer;color:var(--text);border:1px solid var(--line);background:var(--panel2);border-radius:12px;min-height:44px;padding:9px 12px}button:active{transform:scale(.98)}button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}header{padding:20px 16px 12px;max-width:760px;margin:auto}header h1{margin:0;font-size:25px;letter-spacing:-.5px}header p{margin:5px 0 0;color:var(--muted);font-size:13px}.wrap{max-width:760px;margin:auto;padding:0 14px 28px}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.tab{background:transparent}.tab.active{background:var(--accent);color:var(--accentText);border-color:var(--accent);font-weight:750}.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:14px}.label{display:block;color:var(--muted);font-size:13px;margin:0 0 7px}.display{width:100%;border:1px solid var(--line);background:#090e1b;border-radius:14px;padding:14px;color:var(--text);font-size:23px;min-height:58px}.result{font-size:28px;overflow-wrap:anywhere;margin-top:9px}.sub{font-size:12px;color:var(--muted);line-height:1.5}.keys{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.keys button{font-size:17px;padding:8px 3px}.keys .fn{background:#202d48}.keys .go{background:var(--accent);color:var(--accentText);font-weight:800;border-color:var(--accent)}.row{display:flex;gap:8px}.row>*{min-width:0;flex:1}.field{width:100%;min-width:0;border:1px solid var(--line);background:#090e1b;color:var(--text);border-radius:12px;padding:12px}.primary{background:var(--accent);color:var(--accentText);font-weight:800;border-color:var(--accent);width:100%;margin-top:10px}.message{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;overflow-wrap:anywhere;line-height:1.5}.history-item{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px;overflow-wrap:anywhere}.history-actions{display:flex;gap:8px;margin-top:9px}.history-actions button{font-size:13px;min-height:38px}.danger{color:var(--danger)}[hidden]{display:none!important}footer{color:var(--muted);font-size:12px;text-align:center;padding:10px 8px}
+</style>
+</head>
+<body>
+<header><h1>MathMaster</h1><p>계산기 · 소수 판별 · 계산 기록</p></header>
+<main class="wrap">
+<nav class="tabs" aria-label="기능 선택">
+<button class="tab active" data-view="calculator">🧮 계산기</button><button class="tab" data-view="prime">🔢 소수 판별</button><button class="tab" data-view="history">🕘 기록</button>
+</nav>
+<section id="calculator" class="panel">
+<label class="label" for="expression">계산식</label><input id="expression" class="display" value="(12+3)*4" autocomplete="off" autocapitalize="off" spellcheck="false" readonly inputmode="none">
+<div class="keys" id="keys"></div>
+<div class="row" style="margin-top:10px"><button id="backspace">⌫ 지우기</button><button id="clear">전체 지우기</button><button id="calculate" class="go">= 계산</button></div>
+<div class="label" style="margin-top:14px">결과</div><div id="calcResult" class="result" aria-live="polite">60</div>
+<div class="row" style="margin-top:10px"><button id="useResult">결과를 계산식에 넣기</button><button id="copyResult">결과 복사</button></div>
+<p class="sub">지원: + − × ÷, 괄호, 거듭제곱 ^, %, √, sin, cos, tan, asin, acos, atan, log, ln, π, e, 팩토리얼 !, 절댓값 abs. 삼각함수는 도 단위야. 일반 계산은 컴퓨터의 숫자 정밀도를 사용해.</p>
+</section>
+<section id="prime" class="panel" hidden>
+<label class="label" for="primeInput">확인할 정수 (최대 1,000,000자리 입력 가능)</label><textarea id="primeInput" class="field" rows="4" maxlength="1000000" placeholder="예: 97" autocapitalize="off" spellcheck="false" style="resize:vertical"></textarea>
+<div class="sub" id="digitCount">0 / 1,000,000자리</div>
+<button id="checkPrime" class="primary">소수인지 판별하기</button>
+<div id="primeResult" class="message" aria-live="polite">숫자를 입력해 줘.</div>
+<p class="sub">판별 범위: 이 버전은 1,000,000자리까지 입력을 받지만, 정확한 소수 판별은 최대 15자리 정수까지만 지원해. 더 긴 숫자는 입력만 가능하며 결과를 확정하지 않아.</p>
+</section>
+<section id="history" class="panel" hidden>
+<div class="row" style="align-items:center"><div><strong>기록</strong><div class="sub">최근 100개 · 기기 안에 저장</div></div><button id="clearHistory" class="danger">전체 삭제</button></div>
+<div id="historyList"></div>
+</section>
+<footer>MathMaster · 기록은 이 기기에 저장돼.</footer>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const STORE='mathmaster-history-v2';
+let history=[];
+try{history=JSON.parse(localStorage.getItem(STORE)||'[]');if(!Array.isArray(history))history=[];}catch(_){history=[]}
+let lastResult='';
+const keySpecs=[
+['7'],['8'],['9'],['÷','fn'],['4'],['5'],['6'],['×','fn'],['1'],['2'],['3'],['−','fn'],['0'],['.'],['(',')'],['+','fn'],
+['π','fn'],['^','fn'],['%','fn'],['√','fn'],['sin(','fn'],['cos(','fn'],['tan(','fn'],['log(','fn'],
+['ln(','fn'],['abs(','fn'],['!','fn'],['e','fn'],['asin(','fn'],['acos(','fn'],['atan(','fn'],[')']
+];
+const keyBox=$('keys');
+keySpecs.forEach(([label,cls])=>{const b=document.createElement('button');b.type='button';b.textContent=label;if(cls)b.classList.add(cls);b.addEventListener('click',()=>insertToken(label));keyBox.appendChild(b)});
+function insertToken(label){const input=$('expression');const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;let token=({'÷':'/','×':'*','−':'-','π':'pi','√':'sqrt('}[label]||label);input.value=input.value.slice(0,start)+token+input.value.slice(end);const p=start+token.length;try{input.setSelectionRange(p,p)}catch(_){}}
+function factorial(n){if(!Number.isInteger(n)||n<0||n>170)throw Error('팩토리얼은 0~170의 정수만 계산할 수 있어.');let r=1;for(let i=2;i<=n;i++)r*=i;return r}
+function evaluate(src){
+ let s=src.trim();if(!s)throw Error('계산식을 입력해 줘.');
+ s=s.replace(/π/g,'pi').replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-');
+ s=s.replace(/(\d+(?:\.\d+)?)%/g,'($1/100)').replace(/\^/g,'**');
+ s=s.replace(/\bpi\b/gi,'Math.PI').replace(/\be\b/g,'Math.E');
+ s=s.replace(/\bsqrt\s*\(/gi,'Math.sqrt(').replace(/\babs\s*\(/gi,'Math.abs(');
+ s=s.replace(/\bsin\s*\(/gi,'(Math.sin(Math.PI/180*').replace(/\bcos\s*\(/gi,'(Math.cos(Math.PI/180*').replace(/\btan\s*\(/gi,'(Math.tan(Math.PI/180*');
+ s=s.replace(/\basin\s*\(/gi,'(180/Math.PI*Math.asin(').replace(/\bacos\s*\(/gi,'(180/Math.PI*Math.acos(').replace(/\batan\s*\(/gi,'(180/Math.PI*Math.atan(');
+ s=s.replace(/\blog\s*\(/gi,'Math.log10(').replace(/\bln\s*\(/gi,'Math.log(');
+ // Factorial of a numeric literal or parenthesized expression.
+ s=s.replace(/(\d+(?:\.\d+)?|\([^()]*\))!/g,'factorial($1)');
+ if(!/^[0-9+\-*/().,\sA-Za-z_]*$/.test(s)||/(?:window|document|constructor|function|=>|Math\.random)/i.test(s))throw Error('계산식을 확인해 줘.');
+ const fn=Function('Math','factorial','"use strict";return ('+s+')');
+ const value=fn(Math,factorial);
+ if(typeof value!=='number'||!Number.isFinite(value))throw Error('계산할 수 없는 결과야. 0으로 나누거나 범위를 벗어났는지 확인해 줘.');
+ return value;
+}
+function formatNumber(n){return Number(n.toPrecision(12)).toString()}
+function saveHistory(type,expr,result){history.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),type,expr,result,time:new Date().toLocaleString('ko-KR')});history=history.slice(0,100);try{localStorage.setItem(STORE,JSON.stringify(history))}catch(_){}renderHistory()}
+function calc(){try{const expr=$('expression').value;const value=evaluate(expr);lastResult=formatNumber(value);$('calcResult').textContent=lastResult;saveHistory('계산',expr,lastResult)}catch(e){$('calcResult').textContent=e.message}}
+$('calculate').addEventListener('click',calc);$('expression').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();calc()}});
+$('backspace').addEventListener('click',()=>{const i=$('expression');const a=i.selectionStart??i.value.length,b=i.selectionEnd??a;if(a!==b)i.value=i.value.slice(0,a)+i.value.slice(b);else if(a>0)i.value=i.value.slice(0,a-1)+i.value.slice(a);const p=a===b?Math.max(0,a-1):a;try{i.setSelectionRange(p,p)}catch(_){}});
+$('clear').addEventListener('click',()=>{$('expression').value='';$('calcResult').textContent='0';lastResult='';$('expression').blur()});
+$('useResult').addEventListener('click',()=>{if(lastResult!=='')$('expression').value=lastResult});
+$('copyResult').addEventListener('click',()=>{if(!lastResult){$('calcResult').textContent='먼저 계산해 줘.';return}const ta=document.createElement('textarea');ta.value=lastResult;ta.style.position='absolute';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy')}catch(_){}ta.remove();$('calcResult').textContent=ok?'복사했어: '+lastResult:'결과: '+lastResult+' (길게 눌러 복사해 줘.)'});
+$('primeInput').addEventListener('input',()=>{$('digitCount').textContent=$('primeInput').value.length.toLocaleString('ko-KR')+' / 1,000,000자리'});
+function isPrime(n){if(n<2)return false;if(n===2)return true;if(n%2===0)return false;for(let d=3;d*d<=n;d+=2)if(n%d===0)return false;return true}
+$('checkPrime').addEventListener('click',()=>{const s=$('primeInput').value.trim();let message;if(!/^\d+$/.test(s))message='0 이상의 정수만 입력해 줘. 공백이나 기호는 빼 줘.';else if(s.length>15||!Number.isSafeInteger(Number(s)))message='입력은 완료됐지만, 이 버전은 15자리 초과 숫자의 소수 여부를 확정할 수 없어.';else{const n=Number(s);message=n+(isPrime(n)?'은(는) 소수야!':'은(는) 소수가 아니야.');saveHistory('소수 판별',s,message)}$('primeResult').textContent=message;if(s.length>15&&/^\d+$/.test(s))saveHistory('소수 판별',s,message)});
+function renderHistory(){const box=$('historyList');box.replaceChildren();if(!history.length){box.textContent='아직 기록이 없어.';return}history.forEach(item=>{const card=document.createElement('div');card.className='history-item';const title=document.createElement('div');title.style.fontWeight='700';title.textContent=item.type+' · '+item.time;const expr=document.createElement('div');expr.style.marginTop='5px';expr.textContent=item.expr+' = '+item.result;const actions=document.createElement('div');actions.className='history-actions';const edit=document.createElement('button');edit.textContent='불러오기 / 수정';edit.addEventListener('click',()=>{if(item.type==='계산'){showView('calculator');$('expression').value=item.expr;$('expression').blur()}else{showView('prime');$('primeInput').value=item.expr;$('digitCount').textContent=item.expr.length.toLocaleString('ko-KR')+' / 1,000,000자리'}});const del=document.createElement('button');del.textContent='삭제';del.className='danger';del.addEventListener('click',()=>{history=history.filter(x=>x.id!==item.id);persist();renderHistory()});actions.append(edit,del);card.append(title,expr,actions);box.append(card)})}
+function persist(){try{localStorage.setItem(STORE,JSON.stringify(history))}catch(_){}}
+function showView(view){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===view));['calculator','prime','history'].forEach(id=>$(id).hidden=id!==view);if(view==='history')renderHistory()}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+$('clearHistory').addEventListener('click',()=>{if(confirm('모든 기록을 삭제할까?')){history=[];persist();renderHistory()}});
+renderHistory();
+})();
+</script>
+</body></html>
